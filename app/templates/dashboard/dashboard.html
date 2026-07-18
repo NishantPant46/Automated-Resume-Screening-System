@@ -1,0 +1,439 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Dashboard | ResumeAI
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ========================= -->
+<!-- PAGE HEADER -->
+<!-- ========================= -->
+
+<div class="page-header">
+
+    <div>
+
+        <h2>Dashboard</h2>
+
+        <p>
+            Welcome back! Here's your recruitment
+            screening overview.
+        </p>
+
+    </div>
+
+    <a href="{{ url_for('job.create_job') }}"
+       class="btn btn-primary">
+
+        <i class="bi bi-plus-lg"></i>
+
+        New Screening
+
+    </a>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- STATISTICS CARDS -->
+<!-- ========================= -->
+
+<div class="row g-4 mb-4">
+
+
+    <!-- Active Jobs -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon blue">
+
+                <i class="bi bi-briefcase"></i>
+
+            </div>
+
+            <div>
+
+                <span>Active Jobs</span>
+
+                <h3>
+                    {{ total_jobs }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Resumes -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon purple">
+
+                <i class="bi bi-file-earmark-text"></i>
+
+            </div>
+
+            <div>
+
+                <span>Resumes Screened</span>
+
+                <h3>
+                    {{ total_resumes }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Average Match -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon green">
+
+                <i class="bi bi-graph-up"></i>
+
+            </div>
+
+            <div>
+
+                <span>Average Match</span>
+
+                <h3>
+                    {{ average_match }}%
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Shortlisted -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon orange">
+
+                <i class="bi bi-people"></i>
+
+            </div>
+
+            <div>
+
+                <span>Shortlisted</span>
+
+                <h3>
+                    {{ shortlisted }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- CHARTS -->
+<!-- ========================= -->
+
+<div class="row g-4 mb-4">
+
+
+    <!-- Candidate Match Score -->
+
+    <div class="col-lg-8">
+
+        <div class="dashboard-card">
+
+            <div class="card-header">
+
+                <h5>
+                    Candidate Match Scores
+                </h5>
+
+            </div>
+
+            <canvas id="matchChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- Candidate Distribution -->
+
+    <div class="col-lg-4">
+
+        <div class="dashboard-card">
+
+            <div class="card-header">
+
+                <h5>
+                    Candidate Distribution
+                </h5>
+
+            </div>
+
+            <canvas id="candidateChart"></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- RECENT CANDIDATES -->
+<!-- ========================= -->
+
+<div class="dashboard-card">
+
+    <div class="card-header">
+
+        <h5>
+            Recent Candidates
+        </h5>
+
+        <a href="#">
+            View All
+        </a>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Candidate</th>
+
+                    <th>Position</th>
+
+                    <th>Match Score</th>
+
+                    <th>Status</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for candidate in recent_candidates %}
+
+                <tr>
+
+                    <td>
+                        {{ candidate.name }}
+                    </td>
+
+                    <td>
+                        {{ candidate.job_title }}
+                    </td>
+
+                    <td>
+
+                        <strong>
+                            {{ candidate.score }}%
+                        </strong>
+
+                    </td>
+
+                    <td>
+
+                        <span class="badge bg-success">
+                            Suitable
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <a href="#"
+                           class="btn btn-sm btn-light">
+
+                            View
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+{% endblock %}
+
+
+<!-- ================================= -->
+<!-- JAVASCRIPT FOR DASHBOARD CHARTS -->
+<!-- ================================= -->
+
+{% block extra_js %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+
+// =================================
+// CANDIDATE MATCH SCORE BAR CHART
+// =================================
+
+const matchChart =
+    document.getElementById('matchChart');
+
+
+new Chart(matchChart, {
+
+    type: 'bar',
+
+    data: {
+
+        labels: [
+
+            'David Lee',
+
+            'Emily Wilson',
+
+            'John Anderson',
+
+            'Michael Brown',
+
+            'Sarah Johnson'
+
+        ],
+
+        datasets: [{
+
+            label: 'Match Score (%)',
+
+            data: [
+
+                82,
+
+                91,
+
+                88,
+
+                70,
+
+                85
+
+            ]
+
+        }]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        scales: {
+
+            y: {
+
+                beginAtZero: true,
+
+                max: 100
+
+            }
+
+        }
+
+    }
+
+});
+
+
+// =================================
+// CANDIDATE DISTRIBUTION CHART
+// =================================
+
+const candidateChart =
+    document.getElementById('candidateChart');
+
+
+new Chart(candidateChart, {
+
+    type: 'doughnut',
+
+    data: {
+
+        labels: [
+
+            'Highly Suitable',
+
+            'Suitable',
+
+            'Not Suitable'
+
+        ],
+
+        datasets: [{
+
+            data: [
+
+                2,
+
+                3,
+
+                1
+
+            ]
+
+        }]
+
+    },
+
+    options: {
+
+        responsive: true
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

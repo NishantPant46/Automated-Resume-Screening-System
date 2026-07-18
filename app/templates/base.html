@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}
+        ResumeAI
+        {% endblock %}
+    </title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Google Font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}">
+
+    {% block extra_css %}
+    {% endblock %}
+</head>
+
+<body>
+
+<div class="app-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">
+                <i class="bi bi-robot"></i>
+            </div>
+
+            <div>
+                <h5>ResumeAI</h5>
+                <small>AI Screening</small>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="{{ url_for('dashboard.dashboard') }}"
+               class="nav-link">
+                <i class="bi bi-grid"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="nav-section">
+                SCREENING
+            </div>
+
+            <a href="{{ url_for('job.jobs') }}"
+               class="nav-link">
+                <i class="bi bi-briefcase"></i>
+                <span>Jobs</span>
+            </a>
+
+            <a href="{{ url_for('resume.upload_resume') }}"
+               class="nav-link">
+                <i class="bi bi-cloud-upload"></i>
+                <span>Upload Resume</span>
+            </a>
+
+            <div class="nav-section">
+                CANDIDATES
+            </div>
+
+            <a href="{{ url_for('resume.candidates') }}"
+               class="nav-link">
+                <i class="bi bi-people"></i>
+                <span>Candidates</span>
+            </a>
+
+            <a href="{{ url_for('report.ranking') }}"
+               class="nav-link">
+                <i class="bi bi-trophy"></i>
+                <span>Candidate Ranking</span>
+            </a>
+
+            <div class="nav-section">
+                ANALYSIS
+            </div>
+
+            <a href="#" class="nav-link">
+                <i class="bi bi-bar-chart"></i>
+                <span>Similarity Report</span>
+            </a>
+
+            <a href="#" class="nav-link">
+                <i class="bi bi-check-circle"></i>
+                <span>Matched Skills</span>
+            </a>
+
+            <a href="#" class="nav-link">
+                <i class="bi bi-exclamation-triangle"></i>
+                <span>Missing Skills</span>
+            </a>
+
+            <div class="nav-section">
+                REPORTS
+            </div>
+
+            <a href="#" class="nav-link">
+                <i class="bi bi-file-earmark-bar-graph"></i>
+                <span>Evaluation Reports</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <a href="#" class="nav-link">
+                <i class="bi bi-gear"></i>
+                <span>Settings</span>
+            </a>
+
+            <div class="user-profile">
+
+                <div class="avatar">
+                    SR
+                </div>
+
+                <div>
+                    <strong>Shital Regmi</strong>
+                    <small>Recruiter</small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Top Navbar -->
+        <header class="top-navbar">
+
+            <div>
+                <button class="btn d-md-none">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+
+            <div class="top-actions">
+
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input
+                        type="text"
+                        placeholder="Search candidates...">
+                </div>
+
+                <button class="icon-button">
+                    <i class="bi bi-bell"></i>
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- Page Content -->
+        <section class="page-content">
+
+            <!-- Flash Messages -->
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+
+                        {{ message }}
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert">
+                        </button>
+
+                    </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            {% block content %}
+
+            {% endblock %}
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+<script
+src="{{ url_for('static', filename='js/app.js') }}">
+</script>
+
+{% block extra_js %}
+{% endblock %}
+
+</body>
+</html>
