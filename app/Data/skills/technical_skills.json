@@ -1,0 +1,99 @@
+{
+  "Programming Languages": [
+    "Python",
+    "Java",
+    "C",
+    "C++",
+    "C#",
+    "JavaScript",
+    "TypeScript",
+    "PHP",
+    "Go",
+    "Rust",
+    "Kotlin",
+    "Swift",
+    "Dart",
+    "R",
+    "MATLAB"
+  ],
+
+  "Web Development": [
+    "HTML",
+    "CSS",
+    "Bootstrap",
+    "Tailwind CSS",
+    "React",
+    "Angular",
+    "Vue.js",
+    "Node.js",
+    "Express.js",
+    "Flask",
+    "Django",
+    "FastAPI",
+    "REST API",
+    "GraphQL"
+  ],
+
+  "Database": [
+    "SQL",
+    "MySQL",
+    "PostgreSQL",
+    "MongoDB",
+    "SQLite",
+    "Oracle",
+    "Firebase",
+    "Redis"
+  ],
+
+  "Machine Learning": [
+    "Machine Learning",
+    "Deep Learning",
+    "NLP",
+    "Computer Vision",
+    "TensorFlow",
+    "PyTorch",
+    "Keras",
+    "Scikit-learn",
+    "Pandas",
+    "NumPy",
+    "OpenCV",
+    "Matplotlib",
+    "Seaborn"
+  ],
+
+  "Cloud and DevOps": [
+    "AWS",
+    "Azure",
+    "Google Cloud",
+    "Docker",
+    "Kubernetes",
+    "Jenkins",
+    "CI/CD",
+    "Linux",
+    "Git",
+    "GitHub"
+  ],
+
+  "Software Engineering": [
+    "OOP",
+    "Data Structures",
+    "Algorithms",
+    "Agile",
+    "Scrum",
+    "Software Testing",
+    "Unit Testing",
+    "Debugging",
+    "Design Patterns"
+  ],
+
+  "Soft Skills": [
+    "Communication",
+    "Leadership",
+    "Problem Solving",
+    "Critical Thinking",
+    "Teamwork",
+    "Time Management",
+    "Adaptability",
+    "Creativity"
+  ]
+}

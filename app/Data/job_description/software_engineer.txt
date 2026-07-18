@@ -1,0 +1,160 @@
+==========================================================
+                TECHNOVA SOLUTIONS PVT. LTD.
+==========================================================
+
+Position: Junior Software Engineer (Python)
+
+Location: Kathmandu, Nepal
+
+Employment Type: Full-Time
+
+Experience Required: 0 - 2 Years
+
+----------------------------------------------------------
+JOB SUMMARY
+----------------------------------------------------------
+
+TechNova Solutions Pvt. Ltd. is looking for a motivated and passionate Junior Software Engineer to join our software development team. The ideal candidate should have strong programming knowledge, problem-solving abilities, and experience in developing web applications using Python technologies. The candidate will work closely with senior developers to build scalable software solutions, REST APIs, and database-driven applications.
+
+----------------------------------------------------------
+KEY RESPONSIBILITIES
+----------------------------------------------------------
+
+• Develop web applications using Python and Flask.
+• Design and implement RESTful APIs.
+• Write clean, reusable, and maintainable code.
+• Work with SQL databases for data storage and retrieval.
+• Collaborate with frontend developers and UI/UX designers.
+• Debug, test, and optimize software applications.
+• Participate in Agile software development.
+• Maintain technical documentation.
+• Use Git for version control.
+• Assist in software deployment and maintenance.
+
+----------------------------------------------------------
+REQUIRED TECHNICAL SKILLS
+----------------------------------------------------------
+
+Python
+Flask
+SQL
+MySQL
+REST API
+Git
+GitHub
+HTML
+CSS
+JavaScript
+Object-Oriented Programming (OOP)
+Data Structures
+Algorithms
+Linux
+JSON
+
+----------------------------------------------------------
+PREFERRED SKILLS
+----------------------------------------------------------
+
+Docker
+AWS
+Machine Learning
+Natural Language Processing (NLP)
+Scikit-learn
+Pandas
+NumPy
+PostgreSQL
+FastAPI
+CI/CD
+
+----------------------------------------------------------
+EDUCATIONAL QUALIFICATION
+----------------------------------------------------------
+
+Bachelor's Degree in one of the following:
+
+• Computer Engineering
+• Computer Science
+• Information Technology
+• Software Engineering
+
+----------------------------------------------------------
+SOFT SKILLS
+----------------------------------------------------------
+
+• Communication
+• Teamwork
+• Problem Solving
+• Critical Thinking
+• Time Management
+• Adaptability
+• Leadership
+• Creativity
+
+----------------------------------------------------------
+BONUS QUALIFICATIONS
+----------------------------------------------------------
+
+• Experience with cloud platforms (AWS, Azure, or GCP)
+• Knowledge of Docker and Kubernetes
+• Understanding of Machine Learning concepts
+• Experience with NLP libraries such as spaCy or NLTK
+• Familiarity with CI/CD pipelines
+
+----------------------------------------------------------
+PROJECTS THAT WILL BE CONSIDERED
+----------------------------------------------------------
+
+• Web Application Development
+• REST API Development
+• Machine Learning Projects
+• NLP-Based Applications
+• Database Management Systems
+• Cloud-Based Applications
+
+----------------------------------------------------------
+HIRING CRITERIA
+----------------------------------------------------------
+
+The candidate will be evaluated based on:
+
+1. Technical Skills Match
+2. Programming Knowledge
+3. Relevant Projects
+4. Educational Background
+5. Problem Solving Ability
+6. Communication Skills
+7. Experience (if any)
+
+----------------------------------------------------------
+PRIMARY KEYWORDS FOR RESUME MATCHING
+----------------------------------------------------------
+
+Python
+Flask
+SQL
+REST API
+Git
+GitHub
+HTML
+CSS
+JavaScript
+OOP
+Data Structures
+Algorithms
+Linux
+JSON
+MySQL
+Docker
+AWS
+Machine Learning
+NLP
+Scikit-learn
+Pandas
+NumPy
+FastAPI
+PostgreSQL
+CI/CD
+
+----------------------------------------------------------
+END OF JOB DESCRIPTION
+----------------------------------------------------------
