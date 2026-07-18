@@ -1,0 +1,877 @@
+{% extends "base.html" %}
+
+{% block title %}
+Candidate Ranking | ResumeAI
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ========================================= -->
+<!-- PAGE HEADER -->
+<!-- ========================================= -->
+
+<div class="page-header mb-4">
+
+    <div>
+
+        <h2>
+            Candidate Ranking
+        </h2>
+
+        <p class="text-muted mb-0">
+
+            AI-powered ranking of candidates based
+            on resume and job description similarity.
+
+        </p>
+
+    </div>
+
+
+    <div>
+
+        <button
+            class="btn btn-outline-secondary">
+
+            <i class="bi bi-download"></i>
+
+            Export Ranking
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- SUMMARY CARDS -->
+<!-- ========================================= -->
+
+<div class="row g-4 mb-4">
+
+
+    <!-- Total Candidates -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon blue">
+
+                <i class="bi bi-people"></i>
+
+            </div>
+
+            <div>
+
+                <span>Total Candidates</span>
+
+                <h3>
+                    {{ candidates|length }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Highly Suitable -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon green">
+
+                <i class="bi bi-check-circle"></i>
+
+            </div>
+
+            <div>
+
+                <span>Highly Suitable</span>
+
+                <h3>
+                    {{ highly_suitable }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Average Score -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon purple">
+
+                <i class="bi bi-graph-up"></i>
+
+            </div>
+
+            <div>
+
+                <span>Average Match</span>
+
+                <h3>
+                    {{ average_score }}%
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Shortlisted -->
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div class="stat-icon orange">
+
+                <i class="bi bi-star"></i>
+
+            </div>
+
+            <div>
+
+                <span>Shortlisted</span>
+
+                <h3>
+                    {{ shortlisted }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- FILTER SECTION -->
+<!-- ========================================= -->
+
+<div class="dashboard-card mb-4">
+
+    <div class="row g-3">
+
+
+        <!-- Search -->
+
+        <div class="col-lg-5">
+
+            <label class="form-label">
+
+                Search Candidate
+
+            </label>
+
+            <div class="input-group">
+
+                <span class="input-group-text">
+
+                    <i class="bi bi-search"></i>
+
+                </span>
+
+                <input
+                    type="text"
+                    id="candidateSearch"
+                    class="form-control"
+                    placeholder="Search by candidate name...">
+
+            </div>
+
+        </div>
+
+
+        <!-- Score Filter -->
+
+        <div class="col-lg-3">
+
+            <label class="form-label">
+
+                Minimum Match Score
+
+            </label>
+
+            <select
+                id="scoreFilter"
+                class="form-select">
+
+                <option value="0">
+                    All Candidates
+                </option>
+
+                <option value="80">
+                    80% and above
+                </option>
+
+                <option value="70">
+                    70% and above
+                </option>
+
+                <option value="60">
+                    60% and above
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- Status Filter -->
+
+        <div class="col-lg-3">
+
+            <label class="form-label">
+
+                Recommendation
+
+            </label>
+
+            <select
+                id="statusFilter"
+                class="form-select">
+
+                <option value="all">
+                    All
+                </option>
+
+                <option value="highly suitable">
+                    Highly Suitable
+                </option>
+
+                <option value="suitable">
+                    Suitable
+                </option>
+
+                <option value="not suitable">
+                    Not Suitable
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- Reset -->
+
+        <div class="col-lg-1 d-flex align-items-end">
+
+            <button
+                id="resetFilters"
+                class="btn btn-light w-100"
+                title="Reset Filters">
+
+                <i class="bi bi-arrow-clockwise"></i>
+
+            </button>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- RANKING TABLE -->
+<!-- ========================================= -->
+
+<div class="dashboard-card">
+
+
+    <div class="card-header mb-3">
+
+        <div>
+
+            <h5 class="mb-1">
+
+                Ranked Candidates
+
+            </h5>
+
+            <small class="text-muted">
+
+                Candidates ranked by AI match score
+
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+
+        <table
+            class="table align-middle"
+            id="rankingTable">
+
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Rank
+                    </th>
+
+                    <th>
+                        Candidate
+                    </th>
+
+                    <th>
+                        Match Score
+                    </th>
+
+                    <th>
+                        Matched Skills
+                    </th>
+
+                    <th>
+                        Missing Skills
+                    </th>
+
+                    <th>
+                        Recommendation
+                    </th>
+
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                {% for candidate in candidates %}
+
+
+                <tr
+                    class="candidate-row"
+
+                    data-name="{{ candidate.name|lower }}"
+
+                    data-score="{{ candidate.score }}"
+
+                    data-status="{{ candidate.recommendation|lower }}">
+
+
+                    <!-- Rank -->
+
+                    <td>
+
+                        <div class="rank-number">
+
+                            {% if loop.index == 1 %}
+
+                                <i class="bi bi-trophy-fill"></i>
+
+                            {% elif loop.index == 2 %}
+
+                                <i class="bi bi-award"></i>
+
+                            {% elif loop.index == 3 %}
+
+                                <i class="bi bi-award"></i>
+
+                            {% else %}
+
+                                {{ loop.index }}
+
+                            {% endif %}
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- Candidate -->
+
+                    <td>
+
+                        <div class="candidate-info">
+
+
+                            <div class="candidate-avatar">
+
+                                {{ candidate.name[0]|upper }}
+
+                            </div>
+
+
+                            <div>
+
+                                <strong>
+
+                                    {{ candidate.name }}
+
+                                </strong>
+
+                                <br>
+
+                                <small class="text-muted">
+
+                                    {{ candidate.email }}
+
+                                </small>
+
+                            </div>
+
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- Match Score -->
+
+                    <td style="min-width: 160px;">
+
+
+                        <div class="d-flex justify-content-between mb-1">
+
+                            <small>
+
+                                Match
+
+                            </small>
+
+                            <strong>
+
+                                {{ candidate.score }}%
+
+                            </strong>
+
+                        </div>
+
+
+                        <div
+                            class="progress"
+                            style="height: 7px;">
+
+
+                            <div
+                                class="progress-bar"
+                                role="progressbar"
+
+                                style="width: {{ candidate.score }}%;"
+
+                                aria-valuenow="{{ candidate.score }}"
+
+                                aria-valuemin="0"
+
+                                aria-valuemax="100">
+
+                            </div>
+
+
+                        </div>
+
+
+                    </td>
+
+
+                    <!-- Matched Skills -->
+
+                    <td>
+
+                        <div class="skill-list">
+
+
+                            {% for skill in candidate.matched_skills %}
+
+
+                            <span
+                                class="badge bg-success-subtle text-success">
+
+                                {{ skill }}
+
+                            </span>
+
+
+                            {% endfor %}
+
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- Missing Skills -->
+
+                    <td>
+
+                        <div class="skill-list">
+
+
+                            {% for skill in candidate.missing_skills %}
+
+
+                            <span
+                                class="badge bg-danger-subtle text-danger">
+
+                                {{ skill }}
+
+                            </span>
+
+
+                            {% endfor %}
+
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- Recommendation -->
+
+                    <td>
+
+
+                        {% if candidate.score >= 80 %}
+
+
+                            <span
+                                class="badge bg-success">
+
+                                <i class="bi bi-check-circle"></i>
+
+                                Highly Suitable
+
+                            </span>
+
+
+                        {% elif candidate.score >= 60 %}
+
+
+                            <span
+                                class="badge bg-warning text-dark">
+
+                                <i class="bi bi-dash-circle"></i>
+
+                                Suitable
+
+                            </span>
+
+
+                        {% else %}
+
+
+                            <span
+                                class="badge bg-danger">
+
+                                <i class="bi bi-x-circle"></i>
+
+                                Not Suitable
+
+                            </span>
+
+
+                        {% endif %}
+
+
+                    </td>
+
+
+                    <!-- Action -->
+
+                    <td>
+
+
+                        <a
+                            href="{{ url_for(
+                                'report.evaluation_report',
+                                candidate_id=candidate.id
+                            ) }}"
+
+                            class="btn btn-sm btn-outline-primary">
+
+
+                            <i class="bi bi-eye"></i>
+
+                            View Report
+
+
+                        </a>
+
+
+                    </td>
+
+
+                </tr>
+
+
+                {% else %}
+
+
+                <!-- No Candidates -->
+
+                <tr>
+
+                    <td
+                        colspan="7"
+                        class="text-center py-5">
+
+
+                        <div class="empty-state">
+
+
+                            <i
+                                class="bi bi-people"
+                                style="font-size: 40px;">
+                            </i>
+
+
+                            <h5 class="mt-3">
+
+                                No Candidates Found
+
+                            </h5>
+
+
+                            <p class="text-muted">
+
+                                Upload resumes to start
+                                screening candidates.
+
+                            </p>
+
+
+                            <a
+                                href="{{ url_for(
+                                    'resume.upload_resume'
+                                ) }}"
+
+                                class="btn btn-primary">
+
+
+                                <i class="bi bi-cloud-upload"></i>
+
+                                Upload Resume
+
+
+                            </a>
+
+
+                        </div>
+
+
+                    </td>
+
+                </tr>
+
+
+                {% endfor %}
+
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
+
+</div>
+
+
+{% endblock %}
+
+
+
+<!-- ========================================= -->
+<!-- JAVASCRIPT -->
+<!-- ========================================= -->
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const searchInput =
+            document.getElementById(
+                "candidateSearch"
+            );
+
+
+        const scoreFilter =
+            document.getElementById(
+                "scoreFilter"
+            );
+
+
+        const statusFilter =
+            document.getElementById(
+                "statusFilter"
+            );
+
+
+        const resetButton =
+            document.getElementById(
+                "resetFilters"
+            );
+
+
+        const rows =
+            document.querySelectorAll(
+                ".candidate-row"
+            );
+
+
+        function filterCandidates() {
+
+
+            const searchValue =
+                searchInput.value
+                    .toLowerCase()
+                    .trim();
+
+
+            const minimumScore =
+                parseInt(
+                    scoreFilter.value
+                );
+
+
+            const selectedStatus =
+                statusFilter.value
+                    .toLowerCase();
+
+
+            rows.forEach(
+                function (row) {
+
+
+                    const name =
+                        row.dataset.name;
+
+
+                    const score =
+                        parseFloat(
+                            row.dataset.score
+                        );
+
+
+                    const status =
+                        row.dataset.status;
+
+
+                    const matchesSearch =
+                        name.includes(
+                            searchValue
+                        );
+
+
+                    const matchesScore =
+                        score >= minimumScore;
+
+
+                    const matchesStatus =
+                        selectedStatus === "all"
+                        ||
+                        status.includes(
+                            selectedStatus
+                        );
+
+
+                    if (
+                        matchesSearch
+                        &&
+                        matchesScore
+                        &&
+                        matchesStatus
+                    ) {
+
+                        row.style.display = "";
+
+                    }
+
+                    else {
+
+                        row.style.display =
+                            "none";
+
+                    }
+
+
+                }
+            );
+
+
+        }
+
+
+        searchInput.addEventListener(
+            "input",
+            filterCandidates
+        );
+
+
+        scoreFilter.addEventListener(
+            "change",
+            filterCandidates
+        );
+
+
+        statusFilter.addEventListener(
+            "change",
+            filterCandidates
+        );
+
+
+        resetButton.addEventListener(
+            "click",
+            function () {
+
+
+                searchInput.value = "";
+
+
+                scoreFilter.value = "0";
+
+
+                statusFilter.value = "all";
+
+
+                filterCandidates();
+
+
+            }
+        );
+
+
+    }
+);
+
+</script>
+
+{% endblock %}
