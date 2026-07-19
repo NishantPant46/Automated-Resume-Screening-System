@@ -11,8 +11,14 @@ def create_app():
 
     db.init_app(app)
 
+    from app.models.resume_model import Resume
+
     from app.routes.resume_routes import resume_bp
 
     app.register_blueprint(resume_bp)
+
+    from app.routes.report_routes import report_bp
+
+    app.register_blueprint(report_bp)
 
     return app
