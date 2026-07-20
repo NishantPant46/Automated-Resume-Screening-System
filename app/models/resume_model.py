@@ -14,6 +14,10 @@ class Resume(db.Model):
 
     file_name = db.Column(db.String(255), nullable=False)
 
+    extracted_text = db.Column(db.Text)   
+
+    processed_text = db.Column(db.Text)
+
     upload_date = db.Column(
         db.DateTime,
         server_default=db.func.now()

@@ -1,18 +1,55 @@
-<td>
+{% extends "base.html" %}
 
-    <div class="progress"
-         style="height: 8px;">
+{% block title %}
+Candidates
+{% endblock %}
 
-        <div
-            class="progress-bar"
-            style="width: {{ candidate.score }}%">
+{% block content %}
 
-        </div>
+<h2 class="mb-4">Candidate List</h2>
 
-    </div>
+<table class="table table-bordered">
 
-    <small>
-        {{ candidate.score }}%
-    </small>
+    <thead>
 
-</td>
+        <tr>
+
+            <th>ID</th>
+
+            <th>Name</th>
+
+            <th>Email</th>
+
+            <th>Phone</th>
+
+            <th>Resume</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for resume in resumes %}
+
+        <tr>
+
+            <td>{{ resume.id }}</td>
+
+            <td>{{ resume.full_name }}</td>
+
+            <td>{{ resume.email }}</td>
+
+            <td>{{ resume.phone }}</td>
+
+            <td>{{ resume.file_name }}</td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}

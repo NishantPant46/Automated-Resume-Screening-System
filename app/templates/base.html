@@ -23,14 +23,35 @@
 
     <div class="container">
 
-        <a class="navbar-brand" href="/">
+        <a class="navbar-brand"
+           href="{{ url_for('dashboard.dashboard') }}">
             Automated Resume Screening System
         </a>
 
-        <div class="ms-auto">
+        <div class="navbar-nav ms-auto">
 
-            <a href="{{ url_for('report.reports') }}"
-               class="btn btn-outline-light">
+            <a class="nav-link text-white"
+               href="{{ url_for('dashboard.dashboard') }}">
+                Dashboard
+            </a>
+
+            <a class="nav-link text-white"
+               href="{{ url_for('resume.resume_page') }}">
+                Upload Resume
+            </a>
+
+            <a class="nav-link text-white"
+               href="{{ url_for('resume.candidates') }}">
+                Candidates
+            </a>
+
+            <a class="nav-link text-white"
+               href="{{ url_for('job.jobs') }}">
+                Jobs
+            </a>
+
+            <a class="nav-link text-white"
+               href="{{ url_for('report.reports') }}">
                 Reports
             </a>
 

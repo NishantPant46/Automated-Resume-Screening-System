@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Upload Resume</title>
+</head>
+
+<body>
+
+<h2>Upload Resume</h2>
+
+<form action="/upload-resume"
+      method="POST"
+      enctype="multipart/form-data">
+
+    <label>Full Name</label><br>
+    <input type="text"
+           name="full_name"
+           required><br><br>
+
+    <label>Email</label><br>
+    <input type="email"
+           name="email"
+           required><br><br>
+
+    <label>Phone</label><br>
+    <input type="text"
+           name="phone"><br><br>
+
+    <label>Resume (PDF)</label><br>
+    <input type="file"
+           name="resume"
+           accept=".pdf"
+           required><br><br>
+
+    <button type="submit">
+        Upload Resume
+    </button>
+
+</form>
+
+</body>
+</html>

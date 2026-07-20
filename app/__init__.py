@@ -21,4 +21,14 @@ def create_app():
 
     app.register_blueprint(report_bp)
 
+    from app.models.job_model import Job
+
+    from app.routes.job_routes import job_bp
+
+    app.register_blueprint(job_bp)
+
+    from app.routes.dashboard_routes import dashboard_bp
+
+    app.register_blueprint(dashboard_bp)
+
     return app

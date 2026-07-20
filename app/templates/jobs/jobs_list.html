@@ -1,135 +1,58 @@
 {% extends "base.html" %}
 
-{% block title %}
-Jobs | ResumeAI
-{% endblock %}
-
 {% block content %}
 
-<div class="page-header">
+<h2>Jobs</h2>
 
-    <div>
+<a href="/create-job"
+   class="btn btn-success mb-3">
 
-        <h2>Job Positions</h2>
+Create Job
 
-        <p>
-            Manage your recruitment screening jobs.
-        </p>
+</a>
 
-    </div>
+<table class="table table-bordered">
 
-    <a
-        href="{{ url_for('job.create_job') }}"
-        class="btn btn-primary">
+<thead>
 
-        <i class="bi bi-plus-lg"></i>
+<tr>
 
-        Create Job
+<th>ID</th>
 
-    </a>
+<th>Title</th>
 
-</div>
+<th>Company</th>
 
+<th>Skills</th>
 
-<div class="dashboard-card">
+<th>Experience</th>
 
+</tr>
 
-    <div class="row mb-4">
+</thead>
 
-        <div class="col-md-6">
+<tbody>
 
-            <input
-                type="search"
-                id="jobSearch"
-                class="form-control"
-                placeholder="Search jobs...">
+{% for job in jobs %}
 
-        </div>
+<tr>
 
-    </div>
+<td>{{ job.id }}</td>
 
+<td>{{ job.title }}</td>
 
-    <div class="table-responsive">
+<td>{{ job.company }}</td>
 
-        <table
-            class="table align-middle"
-            id="jobsTable">
+<td>{{ job.skills }}</td>
 
-            <thead>
+<td>{{ job.experience }} Years</td>
 
-                <tr>
+</tr>
 
-                    <th>Job Title</th>
+{% endfor %}
 
-                    <th>Department</th>
+</tbody>
 
-                    <th>Location</th>
-
-                    <th>Candidates</th>
-
-                    <th>Status</th>
-
-                    <th>Action</th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                {% for job in jobs %}
-
-                <tr>
-
-                    <td>
-                        <strong>
-                            {{ job.title }}
-                        </strong>
-                    </td>
-
-                    <td>
-                        {{ job.department }}
-                    </td>
-
-                    <td>
-                        {{ job.location }}
-                    </td>
-
-                    <td>
-                        {{ job.candidates }}
-                    </td>
-
-                    <td>
-
-                        <span class="badge bg-success">
-                            Active
-                        </span>
-
-                    </td>
-
-                    <td>
-
-                        <a
-                            href="#"
-                            class="btn btn-sm btn-outline-primary">
-
-                            View
-
-                        </a>
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
+</table>
 
 {% endblock %}
