@@ -5,6 +5,8 @@ from app.services.resume_service import save_resume_data
 from app.services.resume_service import get_all_resumes
 from app.services.pdf_service import extract_text_from_pdf
 from app.services.nlp_service import preprocess_text
+from app.services.job_match_service import calculate_similarity
+from app.services.job_match_service import save_job_match
 
 import os
 import joblib

@@ -8,7 +8,11 @@ from flask import flash
 from app.services.job_service import create_job
 from app.services.job_service import get_all_jobs
 from app.models.job_model import Job
-
+from app.models.resume_model import Resume
+from app.services.job_match_service import calculate_final_score
+from app.services.job_match_service import save_job_match
+from app.services.job_match_service import get_matches_for_job
+from app.services.job_match_service import match_all_resumes_to_job
 
 job_bp = Blueprint(
     "job",
@@ -93,7 +97,97 @@ def view_job(job_id):
 
     job = Job.query.get_or_404(job_id)
 
+    resumes = Resume.query.order_by(
+        Resume.upload_date.desc()
+    ).all()
+
     return render_template(
         "jobs/job_detail.html",
-        job=job
+        job=job,
+        resumes=resumes
+    )
+
+
+@job_bp.route("/job/<int:job_id>/match", methods=["POST"])
+def match_job(job_id):
+
+    job = Job.query.get_or_404(job_id)
+
+    resume_id = request.form.get("resume_id")
+
+    if not resume_id:
+        flash("Please select a resume.", "danger")
+        return redirect(
+            url_for("job.view_job", job_id=job_id)
+        )
+
+    resume = Resume.query.get_or_404(resume_id)
+
+    # Calculate similarity
+    similarity_score = calculate_final_score(
+        resume.processed_text,
+        job.description,
+        job.skills
+    )
+
+    # Save match
+    save_job_match(
+        resume.id,
+        job.id,
+        similarity_score
+    )
+
+    flash(
+        f"Resume matched successfully. "
+        f"Similarity Score: {similarity_score}%",
+        "success"
+    )
+
+    return redirect(
+        url_for("job.view_job", job_id=job_id)
+    )
+
+
+@job_bp.route("/job/<int:job_id>/matches")
+def job_matches(job_id):
+
+    job = Job.query.get_or_404(job_id)
+
+    matches = get_matches_for_job(job_id)
+
+    return render_template(
+        "jobs/job_matches.html",
+        job=job,
+        matches=matches
+    )
+
+
+@job_bp.route(
+    "/job/<int:job_id>/match-all",
+    methods=["POST"]
+)
+def match_all_job(job_id):
+
+    job = Job.query.get_or_404(job_id)
+
+    matches = match_all_resumes_to_job(job_id)
+
+    if not matches:
+
+        flash(
+            "No resumes are available for matching.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("job.view_job", job_id=job_id)
+        )
+
+    flash(
+        f"{len(matches)} resumes matched successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("job.job_matches", job_id=job_id)
     )

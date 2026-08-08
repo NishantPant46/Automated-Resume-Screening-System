@@ -15,6 +15,7 @@ def create_app():
     # Import models
     from app.models.resume_model import Resume
     from app.models.job_model import Job
+    from app.models.job_match_model import JobMatch
 
     # Import routes
     from app.routes.resume_routes import resume_bp

@@ -90,11 +90,11 @@ Jobs
                 </td>
 
                 <td>
-                    <a href="#"
-                       class="btn btn-sm btn-outline-primary">
-                        View
-                    </a>
-                </td>
+    <a href="{{ url_for('job.view_job', job_id=job.id) }}"
+       class="btn btn-sm btn-outline-primary">
+        View
+    </a>
+</td>
 
             </tr>
 

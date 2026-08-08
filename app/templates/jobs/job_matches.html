@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}
+Matching Candidates
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+```
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2>Matching Candidates</h2>
+
+        <p class="text-muted mb-0">
+            {{ job.title }} - {{ job.company }}
+        </p>
+    </div>
+
+    <a href="{{ url_for('job.view_job', job_id=job.id) }}"
+       class="btn btn-outline-secondary">
+
+        Back to Job
+
+    </a>
+
+</div>
+
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <div>
+                <h5 class="mb-1">
+                    Candidate Ranking
+                </h5>
+
+                <p class="text-muted mb-0">
+                    Candidates ranked by resume-job similarity.
+                </p>
+            </div>
+
+            <span class="badge bg-primary">
+                {{ matches|length }} Candidates
+            </span>
+
+        </div>
+
+
+        {% if matches %}
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Rank</th>
+
+                        <th>Candidate</th>
+
+                        <th>Email</th>
+
+                        <th>Resume</th>
+
+                        <th>Similarity Score</th>
+
+                        <th>Matched At</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for match in matches %}
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+                                #{{ loop.index }}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                {{ match.resume.full_name }}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+                            {{ match.resume.email }}
+                        </td>
+
+
+                        <td>
+                            {{ match.resume.file_name }}
+                        </td>
+
+
+                        <td>
+
+                            {% if match.similarity_score >= 75 %}
+
+                                <span class="badge bg-success">
+                                    {{ "%.2f"|format(match.similarity_score) }}%
+                                </span>
+
+                            {% elif match.similarity_score >= 50 %}
+
+                                <span class="badge bg-warning text-dark">
+                                    {{ "%.2f"|format(match.similarity_score) }}%
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-danger">
+                                    {{ "%.2f"|format(match.similarity_score) }}%
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if match.created_at %}
+
+                                {{ match.created_at.strftime('%d %b %Y %H:%M') }}
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+            <div class="text-center py-5">
+
+                <h5>No matching candidates</h5>
+
+                <p class="text-muted">
+                    No resumes have been matched with this job yet.
+                </p>
+
+                <a href="{{ url_for('job.view_job', job_id=job.id) }}"
+                   class="btn btn-primary">
+
+                    Match a Resume
+
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+```
+
+</div>
+
+{% endblock %}
