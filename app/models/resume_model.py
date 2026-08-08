@@ -18,6 +18,8 @@ class Resume(db.Model):
 
     processed_text = db.Column(db.Text)
 
+    predicted_job_role = db.Column(db.String(100))
+
     upload_date = db.Column(
         db.DateTime,
         server_default=db.func.now()

@@ -8,23 +8,18 @@ def save_resume_data(
     phone,
     file_name,
     extracted_text,
-    processed_text
+    processed_text,
+    predicted_job_role
 ):
 
     resume = Resume(
-
         full_name=full_name,
-
         email=email,
-
         phone=phone,
-
         file_name=file_name,
-
         extracted_text=extracted_text,
-
-        processed_text=processed_text
-
+        processed_text=processed_text,
+        predicted_job_role=predicted_job_role
     )
 
     db.session.add(resume)

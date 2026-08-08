@@ -3,8 +3,6 @@ import nltk
 
 from nltk.corpus import stopwords
 
-# Download stopwords once
-nltk.download("stopwords")
 
 # Load English model
 nlp = spacy.load("en_core_web_sm")

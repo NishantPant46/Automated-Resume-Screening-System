@@ -5,19 +5,51 @@ class Job(db.Model):
 
     __tablename__ = "jobs"
 
-    id = db.Column(db.Integer, primary_key=True)
+    __table_args__ = (
+        db.UniqueConstraint(
+            "title",
+            "company",
+            "deadline",
+            name="unique_job_posting"
+        ),
+    )
 
-    title = db.Column(db.String(100), nullable=False)
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
-    company = db.Column(db.String(100), nullable=False)
+    title = db.Column(
+        db.String(100),
+        nullable=False
+    )
 
-    description = db.Column(db.Text, nullable=False)
+    company = db.Column(
+        db.String(100),
+        nullable=False
+    )
 
-    processed_description = db.Column(db.Text)
+    description = db.Column(
+        db.Text,
+        nullable=False
+    )
 
-    skills = db.Column(db.Text)
+    processed_description = db.Column(
+        db.Text
+    )
 
-    experience = db.Column(db.Integer)
+    skills = db.Column(
+        db.Text
+    )
+
+    experience = db.Column(
+        db.Integer
+    )
+
+    deadline = db.Column(
+        db.Date,
+        nullable=False
+    )
 
     created_at = db.Column(
         db.DateTime,
@@ -25,4 +57,4 @@ class Job(db.Model):
     )
 
     def __repr__(self):
-        return f"<Job {self.title}>"
+        return f"<Job {self.title} - {self.company}>"

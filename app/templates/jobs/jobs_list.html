@@ -1,58 +1,123 @@
 {% extends "base.html" %}
 
+{% block title %}
+Jobs
+{% endblock %}
+
 {% block content %}
 
-<h2>Jobs</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">Job Listings</h2>
+        <p class="text-muted mb-0">
+            Manage all job postings
+        </p>
+    </div>
 
-<a href="/create-job"
-   class="btn btn-success mb-3">
 
-Create Job
-
+<a href="{{ url_for('job.create_job_page') }}"
+   class="btn btn-primary">
+    + Create Job
 </a>
 
-<table class="table table-bordered">
 
-<thead>
+</div>
 
-<tr>
+<div class="dashboard-card">
 
-<th>ID</th>
 
-<th>Title</th>
+<div class="table-responsive">
 
-<th>Company</th>
+    <table class="table table-hover align-middle mb-0">
 
-<th>Skills</th>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Job Title</th>
+                <th>Company</th>
+                <th>Skills</th>
+                <th>Experience</th>
+                <th>Deadline</th>
+                <th>Created At</th>
+                <th>Action</th>
+            </tr>
+        </thead>
 
-<th>Experience</th>
+        <tbody>
 
-</tr>
+            {% for job in jobs %}
 
-</thead>
+            <tr>
 
-<tbody>
+                <td>
+                    {{ job.id }}
+                </td>
 
-{% for job in jobs %}
+                <td>
+                    <strong>
+                        {{ job.title }}
+                    </strong>
+                </td>
 
-<tr>
+                <td>
+                    {{ job.company }}
+                </td>
 
-<td>{{ job.id }}</td>
+                <td>
+                    {{ job.skills or "Not specified" }}
+                </td>
 
-<td>{{ job.title }}</td>
+                <td>
+                    {{ job.experience or 0 }} Years
+                </td>
 
-<td>{{ job.company }}</td>
+                <td>
+                    {% if job.deadline %}
+                        {{ job.deadline.strftime('%d %b %Y') }}
+                    {% else %}
+                        <span class="text-muted">
+                            No deadline
+                        </span>
+                    {% endif %}
+                </td>
 
-<td>{{ job.skills }}</td>
+                <td>
+                    {% if job.created_at %}
+                        {{ job.created_at.strftime('%d %b %Y') }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
 
-<td>{{ job.experience }} Years</td>
+                <td>
+                    <a href="#"
+                       class="btn btn-sm btn-outline-primary">
+                        View
+                    </a>
+                </td>
 
-</tr>
+            </tr>
 
-{% endfor %}
+            {% else %}
 
-</tbody>
+            <tr>
+                <td colspan="8"
+                    class="text-center text-muted py-4">
 
-</table>
+                    No jobs have been created yet.
+
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+</div>
 
 {% endblock %}

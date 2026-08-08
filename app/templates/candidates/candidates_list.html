@@ -6,50 +6,75 @@ Candidates
 
 {% block content %}
 
-<h2 class="mb-4">Candidate List</h2>
+<div class="candidates-container">
 
-<table class="table table-bordered">
+    <h2 class="page-title">Candidate List</h2>
 
-    <thead>
+    <div class="table-wrapper">
 
-        <tr>
+        <table class="candidates-table">
 
-            <th>ID</th>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Resume</th>
+                    <th>Predicted Job Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
 
-            <th>Name</th>
+            <tbody>
 
-            <th>Email</th>
+                {% for resume in resumes %}
 
-            <th>Phone</th>
+                <tr>
 
-            <th>Resume</th>
+                    <td>{{ resume.id }}</td>
 
-        </tr>
+                    <td>{{ resume.full_name }}</td>
 
-    </thead>
+                    <td>{{ resume.email }}</td>
 
-    <tbody>
+                    <td>{{ resume.phone }}</td>
 
-        {% for resume in resumes %}
+                    <td>{{ resume.file_name }}</td>
 
-        <tr>
+                    <td>
+                        <span class="job-role">
+                            {{ resume.predicted_job_role }}
+                        </span>
+                    </td>
 
-            <td>{{ resume.id }}</td>
+                    <td>
+                        <a
+                            href="{{ url_for('resume.resume_text', id=resume.id) }}"
+                            class="view-btn"
+                        >
+                            View Resume
+                        </a>
+                    </td>
 
-            <td>{{ resume.full_name }}</td>
+                </tr>
 
-            <td>{{ resume.email }}</td>
+                {% else %}
 
-            <td>{{ resume.phone }}</td>
+                <tr>
+                    <td colspan="7" class="no-data">
+                        No candidates found.
+                    </td>
+                </tr>
 
-            <td>{{ resume.file_name }}</td>
+                {% endfor %}
 
-        </tr>
+            </tbody>
 
-        {% endfor %}
+        </table>
 
-    </tbody>
+    </div>
 
-</table>
+</div>
 
 {% endblock %}

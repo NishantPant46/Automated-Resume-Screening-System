@@ -1,37 +1,50 @@
+
+from datetime import datetime
+
 from app import db
 from app.models.job_model import Job
 
-from app.services.nlp_service import preprocess_text
-
 
 def create_job(
-        title,
-        company,
-        description,
-        skills,
-        experience
+    title,
+    company,
+    description,
+    skills,
+    experience,
+    deadline
 ):
 
-    processed_description = preprocess_text(description)
+    # Convert deadline from HTML string
+    # Example: "2026-08-25"
+    # into Python date object
+    deadline = datetime.strptime(
+        deadline,
+        "%Y-%m-%d"
+    ).date()
 
-    job = Job(
-
+    # Check for duplicate job
+    # Same title + company + deadline = duplicate
+    existing_job = Job.query.filter_by(
         title=title,
-
         company=company,
+        deadline=deadline
+    ).first()
 
+    if existing_job:
+        return None
+
+    # Create new job
+    job = Job(
+        title=title,
+        company=company,
         description=description,
-
-        processed_description=processed_description,
-
         skills=skills,
-
-        experience=experience
-
+        experience=int(experience),
+        deadline=deadline
     )
 
+    # Save job
     db.session.add(job)
-
     db.session.commit()
 
     return job
@@ -39,4 +52,7 @@ def create_job(
 
 def get_all_jobs():
 
-    return Job.query.all()
+    return Job.query.order_by(
+        Job.created_at.desc()
+    ).all()
+

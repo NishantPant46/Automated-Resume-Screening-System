@@ -135,3 +135,111 @@ body {
     justify-content: space-between;
     align-items: center;
 }
+
+/* ========================================
+   Candidates Table
+======================================== */
+
+.candidates-container {
+    width: 100%;
+}
+
+.page-title {
+    margin: 0 0 20px 0;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.candidates-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+/* Table Header */
+
+.candidates-table thead {
+    background: #f1f5f9;
+}
+
+.candidates-table th {
+    padding: 15px 16px;
+    text-align: left;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+/* Table Body */
+
+.candidates-table td {
+    padding: 15px 16px;
+    color: var(--text);
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+/* Last row */
+
+.candidates-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Hover */
+
+.candidates-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* Job Role */
+
+.job-role {
+    display: inline-block;
+    padding: 6px 10px;
+    background: #eff6ff;
+    color: var(--primary);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* View Resume Button */
+
+.view-btn {
+    display: inline-block;
+    padding: 7px 12px;
+    background: var(--primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: 0.2s ease;
+}
+
+.view-btn:hover {
+    background: #1d4ed8;
+    color: white;
+}
+
+/* No candidates */
+
+.no-data {
+    text-align: center !important;
+    padding: 30px !important;
+    color: var(--muted) !important;
+}
