@@ -7,12 +7,19 @@ from flask import flash
 
 from app.services.job_service import create_job
 from app.services.job_service import get_all_jobs
+
 from app.models.job_model import Job
 from app.models.resume_model import Resume
+
 from app.services.job_match_service import calculate_final_score
 from app.services.job_match_service import save_job_match
 from app.services.job_match_service import get_matches_for_job
 from app.services.job_match_service import match_all_resumes_to_job
+from app.services.job_match_service import get_skill_details
+from app.services.job_match_service import get_match_status
+
+
+
 
 job_bp = Blueprint(
     "job",
@@ -20,9 +27,9 @@ job_bp = Blueprint(
 )
 
 
-# ---------------------------------
+# ---------------------------------------------
 # Jobs List
-# ---------------------------------
+# ---------------------------------------------
 
 @job_bp.route("/jobs")
 def jobs():
@@ -35,9 +42,9 @@ def jobs():
     )
 
 
-# ---------------------------------
+# ---------------------------------------------
 # Create Job
-# ---------------------------------
+# ---------------------------------------------
 
 @job_bp.route(
     "/create-job",
@@ -88,14 +95,16 @@ def create_job_page():
     )
 
 
-# ---------------------------------
+# ---------------------------------------------
 # View Job Details
-# ---------------------------------
+# ---------------------------------------------
 
 @job_bp.route("/job/<int:job_id>")
 def view_job(job_id):
 
-    job = Job.query.get_or_404(job_id)
+    job = Job.query.get_or_404(
+        job_id
+    )
 
     resumes = Resume.query.order_by(
         Resume.upload_date.desc()
@@ -108,29 +117,50 @@ def view_job(job_id):
     )
 
 
-@job_bp.route("/job/<int:job_id>/match", methods=["POST"])
+# ---------------------------------------------
+# Match Single Resume To Job
+# ---------------------------------------------
+
+@job_bp.route(
+    "/job/<int:job_id>/match",
+    methods=["POST"]
+)
 def match_job(job_id):
 
-    job = Job.query.get_or_404(job_id)
-
-    resume_id = request.form.get("resume_id")
-
-    if not resume_id:
-        flash("Please select a resume.", "danger")
-        return redirect(
-            url_for("job.view_job", job_id=job_id)
-        )
-
-    resume = Resume.query.get_or_404(resume_id)
-
-    # Calculate similarity
-    similarity_score = calculate_final_score(
-        resume.processed_text,
-        job.description,
-        job.skills
+    job = Job.query.get_or_404(
+        job_id
     )
 
-    # Save match
+    resume_id = request.form.get(
+        "resume_id"
+    )
+
+    if not resume_id:
+
+        flash(
+            "Please select a resume.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "job.view_job",
+                job_id=job_id
+            )
+        )
+
+    resume = Resume.query.get_or_404(
+        resume_id
+    )
+
+    similarity_score = calculate_final_score(
+        resume.processed_text,
+        resume.extracted_text,
+        job.description,
+        job.skills,
+        job.experience
+    )
+
     save_job_match(
         resume.id,
         job.id,
@@ -144,23 +174,70 @@ def match_job(job_id):
     )
 
     return redirect(
-        url_for("job.view_job", job_id=job_id)
+        url_for(
+            "job.view_job",
+            job_id=job_id
+        )
     )
 
 
-@job_bp.route("/job/<int:job_id>/matches")
+# ---------------------------------------------
+# View Job Matches
+# ---------------------------------------------
+
+@job_bp.route(
+    "/job/<int:job_id>/matches"
+)
 def job_matches(job_id):
 
-    job = Job.query.get_or_404(job_id)
+    job = Job.query.get_or_404(
+        job_id
+    )
 
-    matches = get_matches_for_job(job_id)
+    matches = get_matches_for_job(
+        job_id
+    )
+
+    match_details = []
+
+    for match in matches:
+
+        resume = Resume.query.get(
+            match.resume_id
+        )
+
+        if not resume:
+            continue
+
+        skill_details = get_skill_details(
+            resume.processed_text,
+            job.skills
+        )
+
+        match_details.append({
+            "match": match,
+            "resume": resume,
+            "matched_skills": skill_details[
+                "matched_skills"
+            ],
+            "missing_skills": skill_details[
+                "missing_skills"
+            ],
+            "match_status": get_match_status(
+                match.similarity_score
+            )
+        })
 
     return render_template(
         "jobs/job_matches.html",
         job=job,
-        matches=matches
+        match_details=match_details
     )
 
+
+# ---------------------------------------------
+# Match All Resumes To Job
+# ---------------------------------------------
 
 @job_bp.route(
     "/job/<int:job_id>/match-all",
@@ -168,9 +245,13 @@ def job_matches(job_id):
 )
 def match_all_job(job_id):
 
-    job = Job.query.get_or_404(job_id)
+    job = Job.query.get_or_404(
+        job_id
+    )
 
-    matches = match_all_resumes_to_job(job_id)
+    matches = match_all_resumes_to_job(
+        job_id
+    )
 
     if not matches:
 
@@ -180,7 +261,10 @@ def match_all_job(job_id):
         )
 
         return redirect(
-            url_for("job.view_job", job_id=job_id)
+            url_for(
+                "job.view_job",
+                job_id=job_id
+            )
         )
 
     flash(
@@ -189,5 +273,8 @@ def match_all_job(job_id):
     )
 
     return redirect(
-        url_for("job.job_matches", job_id=job_id)
+        url_for(
+            "job.job_matches",
+            job_id=job_id
+        )
     )
