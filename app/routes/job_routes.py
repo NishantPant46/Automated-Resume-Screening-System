@@ -5,6 +5,8 @@ from flask import redirect
 from flask import url_for
 from flask import flash
 
+from flask_login import login_required
+
 from app.services.job_service import create_job
 from app.services.job_service import get_all_jobs
 
@@ -19,8 +21,6 @@ from app.services.job_match_service import get_skill_details
 from app.services.job_match_service import get_match_status
 
 
-
-
 job_bp = Blueprint(
     "job",
     __name__
@@ -32,6 +32,7 @@ job_bp = Blueprint(
 # ---------------------------------------------
 
 @job_bp.route("/jobs")
+@login_required
 def jobs():
 
     jobs = get_all_jobs()
@@ -50,6 +51,7 @@ def jobs():
     "/create-job",
     methods=["GET", "POST"]
 )
+@login_required
 def create_job_page():
 
     if request.method == "POST":
@@ -70,6 +72,7 @@ def create_job_page():
             deadline
         )
 
+        # Duplicate job
         if job is None:
 
             flash(
@@ -78,7 +81,9 @@ def create_job_page():
             )
 
             return redirect(
-                url_for("job.create_job_page")
+                url_for(
+                    "job.create_job_page"
+                )
             )
 
         flash(
@@ -87,7 +92,9 @@ def create_job_page():
         )
 
         return redirect(
-            url_for("job.jobs")
+            url_for(
+                "job.jobs"
+            )
         )
 
     return render_template(
@@ -99,7 +106,10 @@ def create_job_page():
 # View Job Details
 # ---------------------------------------------
 
-@job_bp.route("/job/<int:job_id>")
+@job_bp.route(
+    "/job/<int:job_id>"
+)
+@login_required
 def view_job(job_id):
 
     job = Job.query.get_or_404(
@@ -125,6 +135,7 @@ def view_job(job_id):
     "/job/<int:job_id>/match",
     methods=["POST"]
 )
+@login_required
 def match_job(job_id):
 
     job = Job.query.get_or_404(
@@ -188,6 +199,7 @@ def match_job(job_id):
 @job_bp.route(
     "/job/<int:job_id>/matches"
 )
+@login_required
 def job_matches(job_id):
 
     job = Job.query.get_or_404(
@@ -215,14 +227,19 @@ def job_matches(job_id):
         )
 
         match_details.append({
+
             "match": match,
+
             "resume": resume,
+
             "matched_skills": skill_details[
                 "matched_skills"
             ],
+
             "missing_skills": skill_details[
                 "missing_skills"
             ],
+
             "match_status": get_match_status(
                 match.similarity_score
             )
@@ -243,6 +260,7 @@ def job_matches(job_id):
     "/job/<int:job_id>/match-all",
     methods=["POST"]
 )
+@login_required
 def match_all_job(job_id):
 
     job = Job.query.get_or_404(

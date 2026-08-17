@@ -1,5 +1,7 @@
 import pandas as pd
 import joblib
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -17,7 +19,7 @@ from app.services.nlp_service import preprocess_text
 # Load Dataset
 # ----------------------------
 
-df = pd.read_csv("training/resume_dataset.csv")
+df = pd.read_csv("training/resume_dataset_3000.csv")
 
 print("Dataset Shape:", df.shape)
 print("Columns:", list(df.columns))
@@ -150,12 +152,70 @@ print(
     )
 )
 
+# ----------------------------
+# Confusion Matrix
+# ----------------------------
+
 print("\nConfusion Matrix:")
+
+cm = confusion_matrix(
+    y_test,
+    y_pred
+)
+
+print(cm)
+
+
+# ----------------------------
+# Save Confusion Matrix Figure
+# ----------------------------
+
+plt.figure(
+    figsize=(20, 18)
+)
+
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt="d",
+    cmap="Blues",
+    xticklabels=model.classes_,
+    yticklabels=model.classes_
+)
+
+plt.xlabel("Predicted Category")
+plt.ylabel("Actual Category")
+
+plt.title(
+    "Confusion Matrix - Resume Classification"
+)
+
+plt.xticks(
+    rotation=90,
+    fontsize=8
+)
+
+plt.yticks(
+    rotation=0,
+    fontsize=8
+)
+
+plt.tight_layout()
+
+plt.savefig(
+    "training/confusion_matrix.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
+plt.close()
+
 print(
-    confusion_matrix(
-        y_test,
-        y_pred
-    )
+    "\nConfusion Matrix saved as:"
+)
+
+print(
+    "training/confusion_matrix.png"
 )
 
 

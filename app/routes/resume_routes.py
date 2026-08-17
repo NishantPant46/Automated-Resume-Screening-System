@@ -1,10 +1,24 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    jsonify,
+    redirect,
+    url_for
+)
+
+from flask_login import (
+    login_user,
+    logout_user,
+    login_required
+)
 
 from app.services.upload_service import save_resume
 from app.services.resume_service import save_resume_data
 from app.services.resume_service import get_all_resumes
 from app.services.pdf_service import extract_text_from_pdf
 from app.services.nlp_service import preprocess_text
+
 from app.services.job_match_service import calculate_similarity
 from app.services.job_match_service import save_job_match
 
@@ -12,12 +26,15 @@ import os
 import joblib
 
 
-resume_bp = Blueprint("resume", __name__)
+resume_bp = Blueprint(
+    "resume",
+    __name__
+)
 
 
-# ----------------------------
+# ============================================================
 # Load ML Model and Vectorizer
-# ----------------------------
+# ============================================================
 
 MODEL_PATH = os.path.join(
     "training",
@@ -29,27 +46,63 @@ VECTORIZER_PATH = os.path.join(
     "vectorizer.pkl"
 )
 
-model = joblib.load(MODEL_PATH)
-vectorizer = joblib.load(VECTORIZER_PATH)
+
+model = joblib.load(
+    MODEL_PATH
+)
+
+vectorizer = joblib.load(
+    VECTORIZER_PATH
+)
 
 
-# ----------------------------
+# ============================================================
 # Login Page
-# ----------------------------
+# ============================================================
 
-@resume_bp.route("/", methods=["GET", "POST"])
+@resume_bp.route(
+    "/",
+    methods=["GET", "POST"]
+)
 def home():
 
     if request.method == "POST":
 
-        email = request.form.get("email")
-        password = request.form.get("password")
+        email = request.form.get(
+            "email"
+        )
 
-        print(email)
-        print(password)
+        password = request.form.get(
+            "password"
+        )
 
-        return redirect(
-            url_for("dashboard.dashboard")
+        from app.models.user_model import User
+
+        user = User.query.filter_by(
+            email=email
+        ).first()
+
+        # ----------------------------------------------------
+        # Check Login Credentials
+        # ----------------------------------------------------
+
+        if user and user.password == password:
+
+            login_user(user)
+
+            return redirect(
+                url_for(
+                    "dashboard.dashboard"
+                )
+            )
+
+        # ----------------------------------------------------
+        # Invalid Login
+        # ----------------------------------------------------
+
+        return render_template(
+            "auth/login.html",
+            error="Invalid email or password."
         )
 
     return render_template(
@@ -57,11 +110,33 @@ def home():
     )
 
 
-# ----------------------------
-# Resume Upload Page
-# ----------------------------
+# ============================================================
+# Logout
+# ============================================================
 
-@resume_bp.route("/resume")
+@resume_bp.route(
+    "/logout"
+)
+@login_required
+def logout():
+
+    logout_user()
+
+    return redirect(
+        url_for(
+            "resume.home"
+        )
+    )
+
+
+# ============================================================
+# Resume Upload Page
+# ============================================================
+
+@resume_bp.route(
+    "/resume"
+)
+@login_required
 def resume_page():
 
     return render_template(
@@ -69,14 +144,21 @@ def resume_page():
     )
 
 
-# ----------------------------
+# ============================================================
 # Resume Upload API
-# ----------------------------
+# ============================================================
 
-@resume_bp.route("/upload-resume", methods=["POST"])
+@resume_bp.route(
+    "/upload-resume",
+    methods=["POST"]
+)
+@login_required
 def upload_resume():
 
+    # --------------------------------------------------------
     # Check whether a file was selected
+    # --------------------------------------------------------
+
     if "resume" not in request.files:
 
         return jsonify({
@@ -88,7 +170,10 @@ def upload_resume():
     resume = request.files["resume"]
 
 
+    # --------------------------------------------------------
     # Check empty filename
+    # --------------------------------------------------------
+
     if resume.filename == "":
 
         return jsonify({
@@ -97,16 +182,18 @@ def upload_resume():
         }), 400
 
 
-    # ----------------------------
+    # ========================================================
     # Save PDF
-    # ----------------------------
+    # ========================================================
 
-    filename = save_resume(resume)
+    filename = save_resume(
+        resume
+    )
 
 
-    # ----------------------------
+    # ========================================================
     # PDF Path
-    # ----------------------------
+    # ========================================================
 
     file_path = os.path.join(
         "app",
@@ -116,36 +203,36 @@ def upload_resume():
     )
 
 
-    # ----------------------------
+    # ========================================================
     # Extract Text
-    # ----------------------------
+    # ========================================================
 
     extracted_text = extract_text_from_pdf(
         file_path
     )
 
 
-    # ----------------------------
+    # ========================================================
     # NLP Preprocessing
-    # ----------------------------
+    # ========================================================
 
     processed_text = preprocess_text(
         extracted_text
     )
 
 
-    # ----------------------------
+    # ========================================================
     # TF-IDF Transformation
-    # ----------------------------
+    # ========================================================
 
     resume_vector = vectorizer.transform(
         [processed_text]
     )
 
 
-    # ----------------------------
+    # ========================================================
     # Logistic Regression Prediction
-    # ----------------------------
+    # ========================================================
 
     predicted_job_role = model.predict(
         resume_vector
@@ -158,9 +245,9 @@ def upload_resume():
     )
 
 
-    # ----------------------------
+    # ========================================================
     # Read Form Data
-    # ----------------------------
+    # ========================================================
 
     full_name = request.form.get(
         "full_name"
@@ -175,9 +262,9 @@ def upload_resume():
     )
 
 
-    # ----------------------------
+    # ========================================================
     # Save Resume Information
-    # ----------------------------
+    # ========================================================
 
     save_resume_data(
         full_name,
@@ -190,23 +277,34 @@ def upload_resume():
     )
 
 
-    # ----------------------------
+    # ========================================================
     # Return Result
-    # ----------------------------
+    # ========================================================
 
     return jsonify({
+
         "success": True,
-        "message": "Resume uploaded and analyzed successfully.",
-        "file_name": filename,
-        "predicted_job_role": predicted_job_role
+
+        "message":
+            "Resume uploaded and analyzed successfully.",
+
+        "file_name":
+            filename,
+
+        "predicted_job_role":
+            predicted_job_role
+
     }), 201
 
 
-# ----------------------------
+# ============================================================
 # Candidate List
-# ----------------------------
+# ============================================================
 
-@resume_bp.route("/candidates")
+@resume_bp.route(
+    "/candidates"
+)
+@login_required
 def candidates():
 
     resumes = get_all_resumes()
@@ -217,15 +315,24 @@ def candidates():
     )
 
 
-# ----------------------------
+# ============================================================
 # View Resume Text
-# ----------------------------
+# ============================================================
 
-@resume_bp.route("/resume-text/<int:id>")
+@resume_bp.route(
+    "/resume-text/<int:id>"
+)
+@login_required
 def resume_text(id):
 
     from app.models.resume_model import Resume
 
-    resume = Resume.query.get_or_404(id)
+    resume = Resume.query.get_or_404(
+        id
+    )
 
-    return f"<pre>{resume.extracted_text}</pre>"
+    return f"""
+    <pre>
+    {resume.extracted_text}
+    </pre>
+    """

@@ -2,7 +2,7 @@ import re
 
 from app import db
 from app.models.job_match_model import JobMatch
-
+from datetime import datetime
 
 # ---------------------------------------------
 # TF-IDF Similarity
@@ -86,15 +86,19 @@ def calculate_semantic_similarity(resume_text, job_text):
         2
     )
 
-
 # ---------------------------------------------
-# Extract Experience
+# Extract Experience From Job Entries
 # ---------------------------------------------
 
-def extract_experience(text):
+def extract_job_entry_experience(text):
     """
-    Extract years of professional experience
-    from resume text.
+    Extract experience from job-entry formats such as:
+
+    Senior Data Scientist — Google Brain | 5+ Years
+    Data Scientist — Netflix | 3 Years
+    Python Developer | 2+ Years
+
+    Returns total years found in job-entry patterns.
     """
 
     if not text:
@@ -102,25 +106,298 @@ def extract_experience(text):
 
     text = text.lower()
 
-    patterns = [
-        r'(\d+(?:\.\d+)?)\+?\s*years?\s+of\s+experience',
-        r'(\d+(?:\.\d+)?)\+?\s*years?\s+experience',
-        r'(\d+(?:\.\d+)?)\+?\s*years?\s+of\s+professional\s+experience',
-        r'(\d+(?:\.\d+)?)\+?\s*years?\s+working\s+experience',
-        r'worked\s+for\s+(\d+(?:\.\d+)?)\+?\s*years?',
-        r'worked\s+as\s+.*?\s+for\s+(\d+(?:\.\d+)?)\+?\s*years?',
-        r'(\d+(?:\.\d+)?)\+?\s*years?\s+working',
-    ]
+    total_years = 0.0
 
-    for pattern in patterns:
-        match = re.search(pattern, text)
+    # -----------------------------------------
+    # Pattern:
+    # | 5+ Years
+    # | 3 Years
+    # -----------------------------------------
+
+    pattern = re.compile(
+        r'\|\s*(\d+(?:\.\d+)?)\+?\s*years?'
+    )
+
+    matches = pattern.findall(text)
+
+    for value in matches:
+
+        total_years += float(value)
+
+    return round(
+        total_years,
+        2
+    )
+
+
+
+
+
+def extract_experience(text):
+    """
+    Extract total professional experience from a resume.
+
+    Supports:
+    - 5+ years of experience
+    - 3 years experience
+    - Jan 2021 - Dec 2025
+    - June 2020 - August 2023
+    - 2018 - 2020
+    - March 2019 - Present
+    - 2021 - Present
+
+    Returns total experience in years.
+    """
+
+    if not text:
+        return 0.0
+
+    text = text.lower()
+
+    import re
+    from datetime import datetime
+
+    # -------------------------------------------------
+    # Month names
+    # -------------------------------------------------
+
+    months = {
+        "jan": 1,
+        "january": 1,
+        "feb": 2,
+        "february": 2,
+        "mar": 3,
+        "march": 3,
+        "apr": 4,
+        "april": 4,
+        "may": 5,
+        "jun": 6,
+        "june": 6,
+        "jul": 7,
+        "july": 7,
+        "aug": 8,
+        "august": 8,
+        "sep": 9,
+        "sept": 9,
+        "september": 9,
+        "oct": 10,
+        "october": 10,
+        "nov": 11,
+        "november": 11,
+        "dec": 12,
+        "december": 12
+    }
+
+    # -------------------------------------------------
+    # Convert date to month number
+    # -------------------------------------------------
+
+    def convert_to_month(date_text):
+
+        date_text = date_text.strip().lower()
+
+        # Month + Year
+        match = re.match(
+            r"([a-z]+)\s+(\d{4})",
+            date_text
+        )
 
         if match:
-            return float(match.group(1))
+
+            month_name = match.group(1)
+            year = int(match.group(2))
+
+            if month_name in months:
+
+                month = months[month_name]
+
+                return year * 12 + month
+
+        # Year only
+        match = re.match(
+            r"(\d{4})",
+            date_text
+        )
+
+        if match:
+
+            year = int(match.group(1))
+
+            # Assume January
+            return year * 12 + 1
+
+        return None
+
+    # -------------------------------------------------
+    # Current date
+    # -------------------------------------------------
+
+    now = datetime.now()
+
+    current_month = (
+        now.year * 12
+        + now.month
+    )
+
+    # -------------------------------------------------
+    # Find employment date ranges
+    # -------------------------------------------------
+
+    date_pattern = re.compile(
+        r"""
+        (?P<start>
+            (?:jan(?:uary)?|
+            feb(?:ruary)?|
+            mar(?:ch)?|
+            apr(?:il)?|
+            may|
+            jun(?:e)?|
+            jul(?:y)?|
+            aug(?:ust)?|
+            sep(?:t(?:ember)?)?|
+            oct(?:ober)?|
+            nov(?:ember)?|
+            dec(?:ember)?)?
+            \s*
+            \d{4}
+        )
+        \s*
+        (?:-|–|—|to)
+        \s*
+        (?P<end>
+            (?:
+                (?:jan(?:uary)?|
+                feb(?:ruary)?|
+                mar(?:ch)?|
+                apr(?:il)?|
+                may|
+                jun(?:e)?|
+                jul(?:y)?|
+                aug(?:ust)?|
+                sep(?:t(?:ember)?)?|
+                oct(?:ober)?|
+                nov(?:ember)?|
+                dec(?:ember)?)
+                \s*
+            )?
+            (?:\d{4}|present|current)
+        )
+        """,
+        re.VERBOSE | re.IGNORECASE
+    )
+
+    total_months = 0
+
+    date_ranges_found = False
+
+    for match in date_pattern.finditer(text):
+
+        start_text = match.group("start").strip()
+        end_text = match.group("end").strip()
+
+        start_month = convert_to_month(
+            start_text
+        )
+
+        # Present / Current
+        if end_text in ["present", "current"]:
+
+            end_month = current_month
+
+        else:
+
+            end_month = convert_to_month(
+                end_text
+            )
+
+        if start_month is None:
+            continue
+
+        if end_month is None:
+            continue
+
+        # Prevent invalid ranges
+        if end_month < start_month:
+            continue
+
+        duration = (
+            end_month - start_month + 1
+        )
+
+        total_months += duration
+
+        date_ranges_found = True
+
+    # -------------------------------------------------
+    # If date ranges were found
+    # -------------------------------------------------
+
+    if date_ranges_found:
+
+        experience_years = (
+            total_months / 12
+        )
+
+        return round(
+            experience_years,
+            1
+        )
+
+    # -------------------------------------------------
+    # Fallback: Explicit experience statements
+    # -------------------------------------------------
+
+    patterns = [
+
+        r'(\d+(?:\.\d+)?)\+?\s*years?\s+of\s+professional\s+experience',
+
+        r'(\d+(?:\.\d+)?)\+?\s*years?\s+of\s+experience',
+
+        r'(\d+(?:\.\d+)?)\+?\s*years?\s+experience',
+
+        r'(\d+(?:\.\d+)?)\+?\s*years?\s+working\s+experience',
+
+        r'worked\s+for\s+(\d+(?:\.\d+)?)\+?\s*years?',
+
+        r'worked\s+as\s+.*?\s+for\s+(\d+(?:\.\d+)?)\+?\s*years?',
+
+        r'(\d+(?:\.\d+)?)\+?\s*years?\s+working'
+    ]
+
+    detected_experience = []
+
+    for pattern in patterns:
+
+        matches = re.findall(
+            pattern,
+            text
+        )
+
+        for value in matches:
+
+            try:
+
+                years = float(value)
+
+                detected_experience.append(
+                    years
+                )
+
+            except ValueError:
+
+                continue
+
+    if detected_experience:
+
+        return max(
+            detected_experience
+        )
+
+    # -------------------------------------------------
+    # No experience found
+    # -------------------------------------------------
 
     return 0.0
-
-
 # ---------------------------------------------
 # Calculate Experience Match
 # ---------------------------------------------
@@ -193,33 +470,66 @@ def normalize_skill(skill):
     skill = skill.lower().strip()
 
     aliases = {
+
+        # -------------------------
+        # SQL
+        # -------------------------
+
         "mysql": "sql",
         "postgresql": "sql",
         "postgres": "sql",
         "mssql": "sql",
         "sql server": "sql",
 
+        # -------------------------
+        # REST API
+        # -------------------------
+
         "rest apis": "rest api",
         "restful api": "rest api",
         "restful apis": "rest api",
+
+        # -------------------------
+        # Git
+        # -------------------------
 
         "github": "git",
         "gitlab": "git",
         "bitbucket": "git",
 
+        # -------------------------
+        # Node
+        # -------------------------
+
         "node": "node.js",
         "nodejs": "node.js",
+
+        # -------------------------
+        # Machine Learning
+        # -------------------------
 
         "machine-learning": "machine learning",
         "deep-learning": "deep learning",
 
+        # -------------------------
+        # AI
+        # -------------------------
+
         "ai": "artificial intelligence",
+
+        # -------------------------
+        # Networking
+        # -------------------------
 
         "cisco networking": "cisco",
         "tcp/ip": "tcp ip"
     }
 
-    return aliases.get(skill, skill)
+    return aliases.get(
+        skill,
+        skill
+    )
+
 
 # ---------------------------------------------
 # Extract Skills
@@ -227,96 +537,103 @@ def normalize_skill(skill):
 
 def extract_skills(text):
     """
-    Extract technical skills from text and
-    normalize skill aliases.
+    Extract technical skills from text
+    and normalize aliases.
     """
 
     if not text:
         return set()
 
-    skill_list = {
-        "machine learning",
-        "deep learning",
-        "artificial intelligence",
+    text = text.lower()
 
+    skill_list = {
+
+        # Programming
+        "python",
+        "java",
+        "javascript",
+        "c++",
+        "c#",
+        "c",
+
+        # Web / Backend
+        "html",
+        "css",
+        "bootstrap",
+        "flask",
+        "django",
+        "fastapi",
+        "spring",
+        "spring boot",
+
+        # API
         "rest api",
         "rest apis",
         "restful api",
         "restful apis",
 
+        # Database
+        "sql",
         "sql server",
-        "postgresql",
         "mysql",
+        "postgresql",
+        "postgres",
         "mssql",
+        "mongodb",
+        "oracle",
 
-        "node.js",
-        "nodejs",
+        # Data / AI
+        "machine learning",
+        "deep learning",
+        "artificial intelligence",
+        "tensorflow",
+        "pytorch",
+        "pandas",
+        "numpy",
+        "scikit-learn",
 
-        "network security",
-        "tcp ip",
-        "tcp/ip",
-
-        "python",
-        "javascript",
-        "java",
-        "c++",
-        "c#",
-        "c",
-
-        "flask",
-        "django",
-
+        # Frontend
         "react",
         "angular",
         "vue",
 
-        "html",
-        "css",
+        # Mobile
+        "android",
+        "flutter",
+        "kotlin",
+        "swift",
 
-        "mongodb",
-
-        "tensorflow",
-        "pytorch",
-
+        # DevOps / Cloud
         "git",
         "github",
         "gitlab",
         "bitbucket",
-
         "docker",
+        "kubernetes",
         "aws",
         "azure",
         "linux",
 
-        "api",
+        # Security
+        "network security",
+        "cybersecurity",
+        "penetration testing",
 
-        "bootstrap",
+        # Networking
+        "tcp ip",
+        "tcp/ip",
+        "cisco",
+
+        # Design
         "figma",
         "adobe xd",
         "photoshop",
-        "illustrator",
-        "cisco"
+        "illustrator"
     }
-
-    text = text.lower()
 
     found_skills = set()
 
-    # First detect specific skills such as
-    # "rest api" before generic "api".
-    if re.search(r"\brest\s+apis?\b", text):
-        found_skills.add("rest api")
-
-    elif re.search(r"\brestful\s+apis?\b", text):
-        found_skills.add("rest api")
-
-    # Detect remaining skills
     for skill in skill_list:
-
-        # Skip generic API because REST API
-        # already represents API knowledge.
-        if skill == "api":
-            continue
 
         pattern = (
             r"(?<!\w)"
@@ -328,10 +645,11 @@ def extract_skills(text):
 
             normalized = normalize_skill(skill)
 
-            found_skills.add(normalized)
+            found_skills.add(
+                normalized
+            )
 
     return found_skills
-
 
 # ---------------------------------------------
 # Get Skill Details
@@ -366,31 +684,67 @@ def get_skill_details(resume_text, job_skills):
 # Calculate Skill Match
 # ---------------------------------------------
 
-def calculate_skill_match(resume_text, job_skills):
+def calculate_skill_match(
+    resume_text,
+    job_skills
+):
     """
-    Calculate the percentage of required job skills
-    found in the resume after normalization.
+    Calculate percentage of required skills
+    found in the resume.
     """
 
-    resume_skills = extract_skills(resume_text)
+    resume_skills = extract_skills(
+        resume_text
+    )
 
-    required_skills = extract_skills(job_skills)
+    required_skills = extract_skills(
+        job_skills
+    )
 
     if not required_skills:
         return 0.0
 
-    matched_skills = resume_skills.intersection(
-        required_skills
+    matched_skills = (
+        resume_skills.intersection(
+            required_skills
+        )
+    )
+
+    missing_skills = (
+        required_skills.difference(
+            resume_skills
+        )
     )
 
     skill_score = (
         len(matched_skills)
-        / len(required_skills)
+        /
+        len(required_skills)
     ) * 100
 
-    return round(skill_score, 2)
+    print("\nRequired Skills:")
+    print(
+        sorted(required_skills)
+    )
 
+    print("\nMatched Skills:")
+    print(
+        sorted(matched_skills)
+    )
 
+    print("\nMissing Skills:")
+    print(
+        sorted(missing_skills)
+    )
+
+    print(
+        f"\nSkill Match: {round(skill_score, 2)}%"
+    )
+
+    return round(
+        skill_score,
+        2
+    )
 
 # ---------------------------------------------
 # Final Resume-Job Score
@@ -404,48 +758,103 @@ def calculate_final_score(
     required_experience
 ):
     """
-    Calculate the final resume-job matching score.
+    Calculate final resume-job matching score.
 
-    Scoring:
-    TF-IDF similarity = 20%
-    Semantic similarity = 30%
-    Skill matching = 30%
-    Experience matching = 20%
+    Weighting:
+
+    TF-IDF similarity       = 15%
+    Semantic similarity     = 25%
+    Skill matching          = 40%
+    Experience matching     = 20%
     """
 
-    # TF-IDF similarity
+    # -----------------------------------------
+    # TF-IDF Similarity
+    # -----------------------------------------
+
     tfidf_score = calculate_similarity(
         resume_text,
         job_description
     )
 
-    # Semantic similarity
+    # -----------------------------------------
+    # Semantic Similarity
+    # -----------------------------------------
+
     semantic_score = calculate_semantic_similarity(
         resume_text,
         job_description
     )
 
-    # Skill matching
+    # -----------------------------------------
+    # Skill Matching
+    # -----------------------------------------
+
     skill_score = calculate_skill_match(
         resume_text,
         job_skills
     )
 
-    # Experience matching
+    # -----------------------------------------
+    # Experience Matching
+    # -----------------------------------------
+
     experience_score = calculate_experience_match(
         extracted_resume_text,
         required_experience
     )
 
-    # Final weighted score
+    # -----------------------------------------
+    # Final Weighted Score
+    # -----------------------------------------
+
     final_score = (
-        (tfidf_score * 0.20)
-        + (semantic_score * 0.30)
-        + (skill_score * 0.30)
+
+        (tfidf_score * 0.15)
+
+        + (semantic_score * 0.25)
+
+        + (skill_score * 0.40)
+
         + (experience_score * 0.20)
     )
 
-    return round(final_score, 2)
+    # -----------------------------------------
+    # Terminal Debug Information
+    # -----------------------------------------
+
+    print("\n========================================")
+    print("RESUME JOB MATCH ANALYSIS")
+    print("========================================")
+
+    print(
+        f"TF-IDF Similarity       : {tfidf_score}%"
+    )
+
+    print(
+        f"Semantic Similarity     : {semantic_score}%"
+    )
+
+    print(
+        f"Skill Match             : {skill_score}%"
+    )
+
+    print(
+        f"Experience Match        : {experience_score}%"
+    )
+
+    print("----------------------------------------")
+
+    print(
+        f"Final Match Score       : {round(final_score, 2)}%"
+    )
+
+    print("========================================\n")
+
+    return round(
+        final_score,
+        2
+    )
 
 # ---------------------------------------------
 # Match Status
