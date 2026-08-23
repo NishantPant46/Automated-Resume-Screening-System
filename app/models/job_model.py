@@ -19,6 +19,12 @@ class Job(db.Model):
         primary_key=True
     )
 
+    recruiter_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False
+    )
+
     title = db.Column(
         db.String(100),
         nullable=False
@@ -56,5 +62,15 @@ class Job(db.Model):
         server_default=db.func.now()
     )
 
+    # Recruiter relationship
+    recruiter = db.relationship(
+        "User",
+        back_populates="jobs"
+    )
+
     def __repr__(self):
-        return f"<Job {self.title} - {self.company}>"
+
+        return (
+            f"<Job {self.title} "
+            f"- {self.company}>"
+        )

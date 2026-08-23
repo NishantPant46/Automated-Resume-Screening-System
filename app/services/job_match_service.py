@@ -2,6 +2,7 @@ import re
 
 from app import db
 from app.models.job_match_model import JobMatch
+from app.models.selected_candidate_model import SelectedCandidate
 from datetime import datetime
 
 # ---------------------------------------------
@@ -894,7 +895,15 @@ def save_job_match(
     If the match already exists,
     update its score instead of creating
     a duplicate record.
+
+    If the score is 50% or higher,
+    also save the candidate in
+    selected_candidates.
     """
+
+    # -----------------------------------------
+    # Check existing job match
+    # -----------------------------------------
 
     existing_match = JobMatch.query.filter_by(
         resume_id=resume_id,
@@ -907,21 +916,48 @@ def save_job_match(
             similarity_score
         )
 
-        db.session.commit()
+    else:
 
-        return existing_match
+        existing_match = JobMatch(
+            resume_id=resume_id,
+            job_id=job_id,
+            similarity_score=similarity_score
+        )
 
-    new_match = JobMatch(
-        resume_id=resume_id,
-        job_id=job_id,
-        similarity_score=similarity_score
-    )
+        db.session.add(
+            existing_match
+        )
 
-    db.session.add(new_match)
+    # -----------------------------------------
+    # Selected Candidate
+    # -----------------------------------------
+
+    if similarity_score >= 50:
+
+        existing_selection = SelectedCandidate.query.filter_by(
+            resume_id=resume_id,
+            job_id=job_id
+        ).first()
+
+        # Don't create duplicate selection
+        if not existing_selection:
+
+            selected_candidate = SelectedCandidate(
+                resume_id=resume_id,
+                job_id=job_id
+            )
+
+            db.session.add(
+                selected_candidate
+            )
+
+    # -----------------------------------------
+    # Save to database
+    # -----------------------------------------
 
     db.session.commit()
 
-    return new_match
+    return existing_match
 
 
 # ---------------------------------------------

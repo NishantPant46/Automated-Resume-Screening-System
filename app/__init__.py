@@ -28,7 +28,7 @@ def create_app():
 
     login_manager.init_app(app)
 
-    login_manager.login_view = "resume.home"
+    login_manager.login_view = "auth.login"
 
     # ---------------------------------
     # Import Models
@@ -38,6 +38,7 @@ def create_app():
     from app.models.job_model import Job
     from app.models.job_match_model import JobMatch
     from app.models.user_model import User
+    from app.models.selected_candidate_model import SelectedCandidate
 
     # ---------------------------------
     # User Loader
@@ -55,6 +56,7 @@ def create_app():
     # Import Routes
     # ---------------------------------
 
+    from app.routes.auth_routes import auth_bp
     from app.routes.resume_routes import resume_bp
     from app.routes.job_routes import job_bp
     from app.routes.dashboard_routes import dashboard_bp
@@ -63,6 +65,10 @@ def create_app():
     # ---------------------------------
     # Register Blueprints
     # ---------------------------------
+
+    app.register_blueprint(
+        auth_bp
+    )
 
     app.register_blueprint(
         resume_bp

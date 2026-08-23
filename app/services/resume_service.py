@@ -1,3 +1,5 @@
+from flask_login import current_user
+
 from app import db
 from app.models.resume_model import Resume
 
@@ -13,6 +15,8 @@ def save_resume_data(
 ):
 
     resume = Resume(
+        user_id=current_user.id,
+
         full_name=full_name,
         email=email,
         phone=phone,
@@ -29,4 +33,5 @@ def save_resume_data(
 
 
 def get_all_resumes():
+
     return Resume.query.all()

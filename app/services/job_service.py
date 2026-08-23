@@ -1,5 +1,6 @@
-
 from datetime import datetime
+
+from flask_login import current_user
 
 from app import db
 from app.models.job_model import Job
@@ -35,6 +36,7 @@ def create_job(
 
     # Create new job
     job = Job(
+        recruiter_id=current_user.id,
         title=title,
         company=company,
         description=description,

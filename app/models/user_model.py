@@ -14,6 +14,11 @@ class User(
         primary_key=True
     )
 
+    name = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
     email = db.Column(
         db.String(100),
         unique=True,
@@ -24,3 +29,30 @@ class User(
         db.String(255),
         nullable=False
     )
+
+    role = db.Column(
+        db.String(20),
+        nullable=False,
+        default="candidate"
+    )
+
+    # Candidate -> Resume
+    resumes = db.relationship(
+        "Resume",
+        back_populates="candidate",
+        cascade="all, delete-orphan"
+    )
+
+    # Recruiter -> Job
+    jobs = db.relationship(
+        "Job",
+        back_populates="recruiter",
+        cascade="all, delete-orphan"
+    )
+
+    def __repr__(self):
+
+        return (
+            f"<User {self.email} "
+            f"- {self.role}>"
+        )

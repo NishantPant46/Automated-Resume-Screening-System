@@ -32,19 +32,18 @@ class JobMatch(db.Model):
         server_default=db.func.now()
     )
 
-    # Relationship with Resume
     resume = db.relationship(
         "Resume",
         backref="job_matches"
     )
 
-    # Relationship with Job
     job = db.relationship(
         "Job",
         backref="job_matches"
     )
 
     def __repr__(self):
+
         return (
             f"<JobMatch Resume {self.resume_id} "
             f"- Job {self.job_id}>"

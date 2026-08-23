@@ -1,5 +1,8 @@
 from app import create_app, db
+
 from app.models.user_model import User
+
+from werkzeug.security import generate_password_hash
 
 
 app = create_app()
@@ -7,22 +10,45 @@ app = create_app()
 
 with app.app_context():
 
-    user = User.query.filter_by(
-        email="admin@gmail.com"
+    email = "admin@gmail.com"
+
+    existing_user = User.query.filter_by(
+        email=email
     ).first()
 
-    if not user:
+    if existing_user:
 
-        user = User(
-            email="admin@gmail.com",
-            password="admin123"
+        print(
+            "User already exists."
         )
-
-        db.session.add(user)
-        db.session.commit()
-
-        print("User created successfully.")
 
     else:
 
-        print("User already exists.")
+        user = User(
+
+            name="System Recruiter",
+
+            email=email,
+
+            password=generate_password_hash(
+                "admin123"
+            ),
+
+            role="recruiter"
+        )
+
+        db.session.add(user)
+
+        db.session.commit()
+
+        print(
+            "Recruiter account created successfully."
+        )
+
+        print(
+            "Email: admin@gmail.com"
+        )
+
+        print(
+            "Password: admin123"
+        )
